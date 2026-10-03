@@ -26,37 +26,71 @@ useEffect(() => {
   // -------------------------
   // Authentication
   // -------------------------
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    if (!form.email || !form.password) {
-      setMessage("Please fill in all required fields.");
-      return;
-    }
+  if (!form.email || !form.password) {
+    setMessage("Please fill in all required fields.");
+    return;
+  }
 
-    if (isSignup && !form.name) {
+  // SIGNUP
+  if (isSignup) {
+    if (!form.name) {
       setMessage("Please enter your name.");
       return;
     }
 
-    // Demo authentication
+    // Save account details
+    localStorage.setItem(
+      "ecellUser",
+      JSON.stringify({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      })
+    );
+
     localStorage.setItem("ecellLoggedIn", "true");
-    if (isSignup) {
-  localStorage.setItem("ecellUser", form.name);
-}
 
     setIsLoggedIn(true);
-    setMessage(
-      isSignup
-        ? "Account created successfully!"
-        : "Login successful!"
-    );
+
+    setMessage("Account created successfully!");
 
     setTimeout(() => {
       setPage("dashboard");
       setMessage("");
     }, 700);
-  };
+
+    return;
+  }
+
+  // LOGIN
+  const savedUser = localStorage.getItem("ecellUser");
+
+  if (!savedUser) {
+    setMessage("No account found. Please sign up first.");
+    return;
+  }
+
+  const user = JSON.parse(savedUser);
+
+  if (form.email !== user.email || form.password !== user.password) {
+    setMessage("Invalid email or password.");
+    return;
+  }
+
+  localStorage.setItem("ecellLoggedIn", "true");
+
+  setIsLoggedIn(true);
+
+  setMessage("Login successful!");
+
+  setTimeout(() => {
+    setPage("dashboard");
+    setMessage("");
+  }, 700);
+};
 
   const handleLogout = () => {
     localStorage.removeItem("ecellLoggedIn");
@@ -117,7 +151,8 @@ useEffect(() => {
       return null;
     }
 
-    const user = localStorage.getItem("ecellUser") || "Member";
+   const savedUser = localStorage.getItem("ecellUser");
+const user = savedUser ? JSON.parse(savedUser).name : "Member";
 
     return (
       <div className="app">
