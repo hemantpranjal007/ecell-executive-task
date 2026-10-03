@@ -76,20 +76,16 @@ button {
 }
 
 .brand {
-  font-size: 23px;
-  font-weight: 800;
-  letter-spacing: -0.8px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
+}
 
-  background: linear-gradient(
-    90deg,
-    #ffffff,
-    #a855f7
-  );
-
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
 }
 
 .nav-actions {

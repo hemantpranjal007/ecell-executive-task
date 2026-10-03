@@ -160,7 +160,6 @@ const user = savedUser ? JSON.parse(savedUser).name : "Member";
         <header className="navbar">
          <div className="brand" onClick={() => setPage("dashboard")}>
   <img src={ecellLogo} alt="E-Cell Logo" />
-  <span>E-Cell</span>
 </div>
 
           <button className="nav-login" onClick={handleLogout}>
@@ -211,9 +210,8 @@ const user = savedUser ? JSON.parse(savedUser).name : "Member";
   return (
     <div className="app">
       <header className="navbar">
-       <div className="brand" onClick={() => setPage("home")}>
+      <div className="brand" onClick={() => setPage("home")}>
   <img src={ecellLogo} alt="E-Cell Logo" />
-  <span>E-Cell</span>
 </div>
 
         <div className="nav-actions">
