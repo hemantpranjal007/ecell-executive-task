@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import ecellLogo from "./assets/ecell-logo.webp";
-import { signInWithPopup, getAdditionalUserInfo } from "firebase/auth";
+import {
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  getAdditionalUserInfo,
+} from "firebase/auth";
 import { auth, googleProvider } from "./firebase"; 
 
 function App() {
@@ -12,6 +17,61 @@ function App() {
 useEffect(() => {
   window.location.hash = page;
 }, [page]);
+useEffect(() => {
+  const handleRedirectResult = async () => {
+    try {
+      const result = await getRedirectResult(auth);
+
+      if (!result) return;
+
+      const user = result.user;
+      const additionalInfo = getAdditionalUserInfo(result);
+      const isNewUser = additionalInfo?.isNewUser;
+
+      const googleAuthMode = localStorage.getItem("googleAuthMode");
+      localStorage.removeItem("googleAuthMode");
+
+      // LOGIN MODE
+      if (googleAuthMode === "login" && isNewUser) {
+        await auth.signOut();
+        setMessage("No account found. Please sign up first.");
+        setPage("login");
+        return;
+      }
+
+      // SAVE USER
+      localStorage.setItem(
+        "ecellUser",
+        JSON.stringify({
+          name: user.displayName,
+          email: user.email,
+          password: "",
+        })
+      );
+
+      localStorage.setItem("ecellLoggedIn", "true");
+
+      setIsLoggedIn(true);
+
+      setMessage(
+        googleAuthMode === "signup"
+          ? "Account created successfully!"
+          : "Google sign-in successful!"
+      );
+
+      setPage("dashboard");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 700);
+    } catch (error) {
+      console.error("Google redirect error:", error);
+      setMessage("Google sign-in was cancelled or failed.");
+    }
+  };
+
+  handleRedirectResult();
+}, []);
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("ecellLoggedIn") === "true"
   );
@@ -31,11 +91,23 @@ useEffect(() => {
   // -------------------------
 const handleGoogleLogin = async () => {
   try {
+    // MOBILE → use redirect
+    if (window.innerWidth <= 768) {
+      localStorage.setItem(
+        "googleAuthMode",
+        isSignup ? "signup" : "login"
+      );
+
+      await signInWithRedirect(auth, googleProvider);
+      return;
+    }
+
+    // DESKTOP → use popup
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
     const additionalInfo = getAdditionalUserInfo(result);
-const isNewUser = additionalInfo?.isNewUser;
+    const isNewUser = additionalInfo?.isNewUser;
 
     // LOGIN MODE
     if (!isSignup && isNewUser) {
@@ -73,14 +145,9 @@ const isNewUser = additionalInfo?.isNewUser;
     setMessage("Google sign-in was cancelled or failed.");
   }
 };
-  const handleSubmit = (e) => {
+const handleSubmit = (e) => {
   e.preventDefault();
-
-  if (!form.email || !form.password) {
-    setMessage("Please fill in all required fields.");
-    return;
-  }
-
+  
   // SIGNUP
   if (isSignup) {
     if (!form.name) {
@@ -151,7 +218,7 @@ const isNewUser = additionalInfo?.isNewUser;
       password: "",
     });
   };
-
+ 
   // -------------------------
   // Login / Signup
   // -------------------------
@@ -173,7 +240,7 @@ const isNewUser = additionalInfo?.isNewUser;
       />
     );
   }
-
+ 
   if (page === "signup") {
     return (
       <AuthPage
@@ -356,7 +423,6 @@ const user = savedUser ? JSON.parse(savedUser).name : "Member";
     </div>
   );
 }
-
 // -------------------------
 // Authentication Component
 // -------------------------
