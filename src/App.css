@@ -64,7 +64,7 @@ button {
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 7%;
+  padding: 0 6%;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 
@@ -72,22 +72,42 @@ button {
   z-index: 10;
 
   background: rgba(5, 5, 5, 0.82);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
 }
 
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+
   cursor: pointer;
+
+  position: relative;
+  z-index: 20;
+
+transform: translate(-28px, 42px);
 }
 
 .brand img {
-  width: 42px;
-  height: 42px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   display: block;
 }
 
+.brand span {
+  margin-top: 4px;
+
+  color: white;
+
+  font-family: "Arial", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
 .nav-actions {
   display: flex;
   align-items: center;
@@ -159,6 +179,11 @@ button {
   overflow: hidden;
 
   padding: 90px 24px;
+  background-image:
+  linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+
+background-size: 80px 80px;
 }
 
 .hero-glow {
@@ -176,6 +201,20 @@ button {
   filter: blur(20px);
 
   pointer-events: none;
+
+  animation: heroGlow 7s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  from {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+
+  to {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
 .hero-content {
@@ -253,11 +292,11 @@ button {
 
   font-weight: 700;
 
-  transition: 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .primary-btn:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.02);
 
   box-shadow:
     0 10px 30px rgba(255, 255, 255, 0.12);
@@ -276,12 +315,21 @@ button {
 
   font-weight: 600;
 
-  transition: 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease;
 }
 
 .secondary-btn:hover {
+  transform: translateY(-3px);
+
   border-color: #a855f7;
+
   color: #c084fc;
+
+  background: rgba(168, 85, 247, 0.06);
 }
 
 /* =========================
@@ -482,6 +530,7 @@ button {
 }
 
 .auth-btn {
+  
   width: 100%;
 
   margin-top: 7px;
@@ -510,6 +559,73 @@ button {
 
   box-shadow:
     0 10px 30px rgba(168, 85, 247, 0.25);
+}
+/* GOOGLE LOGIN */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #777;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.google-btn {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 13px 20px;
+
+  background: white;
+  color: #111;
+
+  border: none;
+  border-radius: 999px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.google-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 25px rgba(255, 255, 255, 0.12);
+}
+
+.google-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #4285f4;
 }
 
 .form-message {
@@ -652,6 +768,18 @@ button {
 @media (max-width: 700px) {
   .navbar {
     padding: 0 5%;
+  }
+    .brand {
+    transform: translate(0, 42px);
+  }
+
+  .brand img {
+    width: 76px;
+    height: 76px;
+  }
+
+  .brand span {
+    font-size: 13px;
   }
 
   .hero {

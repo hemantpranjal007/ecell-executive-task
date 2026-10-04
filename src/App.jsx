@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import ecellLogo from "./assets/ecell-logo.webp";
+import { signInWithPopup, getAdditionalUserInfo } from "firebase/auth";
+import { auth, googleProvider } from "./firebase"; 
 
 function App() {
   const [page, setPage] = useState(
@@ -27,7 +29,51 @@ useEffect(() => {
   // -------------------------
   // Authentication
   // -------------------------
- const handleSubmit = (e) => {
+const handleGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    const additionalInfo = getAdditionalUserInfo(result);
+const isNewUser = additionalInfo?.isNewUser;
+
+    // LOGIN MODE
+    if (!isSignup && isNewUser) {
+      await auth.signOut();
+      setMessage("No account found. Please sign up first.");
+      return;
+    }
+
+    // SAVE USER
+    localStorage.setItem(
+      "ecellUser",
+      JSON.stringify({
+        name: user.displayName,
+        email: user.email,
+        password: "",
+      })
+    );
+
+    localStorage.setItem("ecellLoggedIn", "true");
+
+    setIsLoggedIn(true);
+
+    setMessage(
+      isSignup
+        ? "Account created successfully!"
+        : "Google sign-in successful!"
+    );
+
+    setTimeout(() => {
+      setPage("dashboard");
+      setMessage("");
+    }, 700);
+  } catch (error) {
+    console.error("Google sign-in error:", error);
+    setMessage("Google sign-in was cancelled or failed.");
+  }
+};
+  const handleSubmit = (e) => {
   e.preventDefault();
 
   if (!form.email || !form.password) {
@@ -117,10 +163,12 @@ useEffect(() => {
         setForm={setForm}
         message={message}
         handleSubmit={handleSubmit}
+        handleGoogleLogin={handleGoogleLogin}
         switchMode={() => {
-          setIsSignup(true);
-          setMessage("");
-        }}
+  setIsSignup(true);
+  setPage("signup");
+  setMessage("");
+}}
         goHome={() => setPage("home")}
       />
     );
@@ -134,10 +182,12 @@ useEffect(() => {
         setForm={setForm}
         message={message}
         handleSubmit={handleSubmit}
-        switchMode={() => {
-          setIsSignup(false);
-          setMessage("");
-        }}
+        handleGoogleLogin={handleGoogleLogin}
+       switchMode={() => {
+  setIsSignup(false);
+  setPage("login");
+  setMessage("");
+}}
         goHome={() => setPage("home")}
       />
     );
@@ -212,6 +262,7 @@ const user = savedUser ? JSON.parse(savedUser).name : "Member";
       <header className="navbar">
       <div className="brand" onClick={() => setPage("home")}>
   <img src={ecellLogo} alt="E-Cell Logo" />
+  <span>E-Cell</span>
 </div>
 
         <div className="nav-actions">
@@ -315,6 +366,7 @@ function AuthPage({
   setForm,
   message,
   handleSubmit,
+  handleGoogleLogin,
   switchMode,
   goHome,
 }) {
@@ -399,10 +451,23 @@ function AuthPage({
             )}
 
             <button className="auth-btn" type="submit">
-              {isSignup ? "Create Account →" : "Login →"}
-            </button>
-          </form>
+  {isSignup ? "Create Account" : "Login"}
+</button>
 
+<div className="auth-divider">
+  <span>OR</span>
+</div>
+
+<button
+  type="button"
+  className="google-btn"
+  onClick={handleGoogleLogin}
+>
+  <span className="google-icon">G</span>
+  Continue with Google
+</button>
+
+</form>
           <div className="switch-auth">
             {isSignup
               ? "Already have an account?"
