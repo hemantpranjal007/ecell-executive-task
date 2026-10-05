@@ -21,6 +21,7 @@ useEffect(() => {
   const handleRedirectResult = async () => {
     try {
       const result = await getRedirectResult(auth);
+      console.log("REDIRECT RESULT:", result);
 
       if (!result) return;
 
