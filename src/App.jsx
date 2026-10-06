@@ -21,18 +21,30 @@ useEffect(() => {
   const handleRedirectResult = async () => {
     try {
       const result = await getRedirectResult(auth);
+
       console.log("REDIRECT RESULT:", result);
 
-      if (!result) return;
-
-      const user = result.user;
-      const additionalInfo = getAdditionalUserInfo(result);
-      const isNewUser = additionalInfo?.isNewUser;
-
       const googleAuthMode = localStorage.getItem("googleAuthMode");
+
+      if (!googleAuthMode) return;
+
+      const user = result?.user || auth.currentUser;
+
+      if (!user) {
+        console.log("No Firebase user found after redirect.");
+        return;
+      }
+
       localStorage.removeItem("googleAuthMode");
 
-      // LOGIN MODE
+      const additionalInfo = result
+        ? getAdditionalUserInfo(result)
+        : null;
+
+      const isNewUser =
+        additionalInfo?.isNewUser ??
+        user.metadata.creationTime === user.metadata.lastSignInTime;
+
       if (googleAuthMode === "login" && isNewUser) {
         await auth.signOut();
         setMessage("No account found. Please sign up first.");
@@ -40,7 +52,6 @@ useEffect(() => {
         return;
       }
 
-      // SAVE USER
       localStorage.setItem(
         "ecellUser",
         JSON.stringify({
@@ -67,7 +78,7 @@ useEffect(() => {
       }, 700);
     } catch (error) {
       console.error("Google redirect error:", error);
-      setMessage("Google sign-in was cancelled or failed.");
+      setMessage("Google sign-in failed.");
     }
   };
 
